@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- @author <a href="https://github.com/liyupi">程序员xmz</a> -->
+<!-- @author <a href="https://github.com/xmzdog/xmzbi-backend">程序员xmz</a> -->
 <!--  -->
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.yupi.springbootinit.mapper.PostThumbMapper">
+<mapper namespace="com.xmz.bi.mapper.PostThumbMapper">
 
-    <resultMap id="BaseResultMap" type="com.yupi.springbootinit.model.entity.PostThumb">
+    <resultMap id="BaseResultMap" type="com.xmz.bi.model.entity.PostThumb">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="postId" column="postId" jdbcType="BIGINT"/>
             <result property="userId" column="userId" jdbcType="BIGINT"/>

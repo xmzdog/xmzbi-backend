@@ -1,5 +1,5 @@
 # 数据库初始化
-# @author <a href="https://github.com/liyupi">程序员xmz</a>
+# @author <a href="https://github.com/xmzdog/xmzbi-backend">程序员xmz</a>
 #
 
 -- 创建库

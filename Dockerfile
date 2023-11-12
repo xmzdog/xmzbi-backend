@@ -1,5 +1,5 @@
 # Docker 镜像构建
-# @author <a href="https://github.com/liyupi">程序员xmz</a>
+# @author <a href="https://github.com/xmzdog/xmzbi-backend">程序员xmz</a>
 #
 FROM maven:3.8.1-jdk-8-slim as builder
 
