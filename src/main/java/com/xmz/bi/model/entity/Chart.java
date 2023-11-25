@@ -26,7 +26,6 @@ public class Chart implements Serializable {
     private Long userId;
 
 
-
     /**
      * 分析目标
 
@@ -42,6 +41,11 @@ public class Chart implements Serializable {
      * 图表类型
      */
     private String chartType;
+
+    /**
+     * 图表名称
+     */
+    private String name;
 
     /**
      * 生成的表数据
