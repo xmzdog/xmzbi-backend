@@ -13,11 +13,13 @@ import com.xmz.bi.constant.FileConstant;
 import com.xmz.bi.constant.UserConstant;
 import com.xmz.bi.exception.BusinessException;
 import com.xmz.bi.exception.ThrowUtils;
+import com.xmz.bi.manager.AiManager;
 import com.xmz.bi.model.dto.chart.*;
 import com.xmz.bi.model.dto.file.UploadFileRequest;
 import com.xmz.bi.model.entity.Chart;
 import com.xmz.bi.model.entity.User;
 import com.xmz.bi.model.enums.FileUploadBizEnum;
+import com.xmz.bi.model.vo.BiResponse;
 import com.xmz.bi.service.ChartService;
 import com.xmz.bi.service.UserService;
 import com.xmz.bi.utils.ExcelUtils;
@@ -36,10 +38,7 @@ import java.io.File;
 
 
 /**
- *
- *
  * @author <a href="https://github.com/xmzdog/xmzbi-backend">程序员xmz</a>
- * 
  */
 @RestController
 @RequestMapping("/chart")
@@ -52,58 +51,88 @@ public class ChartController {
     @Resource
     private UserService userService;
 
+    @Resource
+    private AiManager aiManager;
+
     private final static Gson GSON = new Gson();
 
     // region 增删改查
 
     /**
      * 智能分析
+     *
      * @param multipartFile
      * @param genChartByAiRequest
      * @param request
      * @return
      */
     @PostMapping("/gen")
-    public BaseResponse<String> genChartByAi(@RequestPart("file") MultipartFile multipartFile,
-                                             GenChartByAiRequest genChartByAiRequest, HttpServletRequest request) {
+    public BaseResponse<BiResponse> genChartByAi(@RequestPart("file") MultipartFile multipartFile,
+                                                 GenChartByAiRequest genChartByAiRequest, HttpServletRequest request) {
         String name = genChartByAiRequest.getName();
         String goal = genChartByAiRequest.getGoal();
         String chartType = genChartByAiRequest.getChartType();
         //校验
-        ThrowUtils.throwIf(StringUtils.isBlank(goal),ErrorCode.PARAMS_ERROR,"目标为空");
-        ThrowUtils.throwIf(StringUtils.isNotBlank(name)&&name.length()>100,ErrorCode.PARAMS_ERROR,"名称过长");
+        ThrowUtils.throwIf(StringUtils.isBlank(goal), ErrorCode.PARAMS_ERROR, "目标为空");
+        ThrowUtils.throwIf(StringUtils.isNotBlank(name) && name.length() > 100, ErrorCode.PARAMS_ERROR, "名称过长");
 
+        User loginUser = userService.getLoginUser(request);
+
+//        final String prompt = "你是一个数据分析师和前端开发专家，接下来我会按照以下固定格式给你提供内容：\n"+
+//                "分析需求：\n"+
+//                "{数据分析的需求或者目标}\n"+
+//                "原始数据：\n"+
+//                "{csv格式的原始数据，用,作为分隔符}\n"+
+//                "请根据这两部分内容，按照以下指定格式生成内容（此外不要输出任何多余的开头、结尾、注释）\n"+
+//                "【【【【\n"+
+//                "{前端 Echarts V5 的 option 配置对象js代码，合理地将数据进行可视化，不要生成任何多余地内容，比如注释}\n"+
+//                "【【【【\n"+
+//                "{明确地数据分析结论，越详细越好，不要生成多余的注释}";
+
+        long aiModelId = 1659171950288818178L;
         //用户输入
         StringBuilder userInput = new StringBuilder();
-        userInput.append("你是一个数据分析师，接下来我会给你我的分析目标和原始数据，请告诉我你的分析结论").append("\n");
-        userInput.append("分析目标:").append(goal).append("\n");
+        userInput.append("分析需求：").append("\n");
+
+        //拼接分析目标
+        String userGoal = goal;
+        if (StringUtils.isNotBlank(chartType)) {
+            userGoal += ",请使用" + chartType;
+        }
+        userInput.append("分析目标:").append(userGoal).append("\n");
 
         // 获取压缩后得数据
-        String result = ExcelUtils.excelToCsv(multipartFile);
-        userInput.append("数据：").append(result).append("\n");
-        return ResultUtils.success(userInput.toString());
+        String csvData = ExcelUtils.excelToCsv(multipartFile);
+        userInput.append("原始数据：").append(csvData).append("\n");
+        String result = aiManager.doChat(aiModelId, userInput.toString());
+        String[] splits = result.split("【【【【【");
+        if (splits.length < 3) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "AI 生成错误");
+        }
+        String genChart = splits[1];
+        String genResult = splits[2];
+
+        //插入到数据库
+        Chart chart = new Chart();
+        chart.setUserId(loginUser.getId());
+        chart.setGoal(goal);
+        chart.setChartData(csvData);
+        chart.setChartType(chartType);
+        chart.setName(name);
+        chart.setGenChart(genChart);
+        chart.setGenResult(genResult);
+
+        boolean save = chartService.save(chart);
+        ThrowUtils.throwIf(!save,ErrorCode.SYSTEM_ERROR,"图表保存失败");
+
+        BiResponse biResponse = new BiResponse();
+        biResponse.setGenChart(genChart);
+        biResponse.setGenResult(genResult);
+        biResponse.setChartId(chart.getId());
+
+        return ResultUtils.success(biResponse);
 
 
-//        User loginUser = userService.getLoginUser(request);
-//        // 文件目录：根据业务、用户来划分
-//        String uuid = RandomStringUtils.randomAlphanumeric(8);
-//        String filename = uuid + "-" + multipartFile.getOriginalFilename();
-//        File file = null;
-//        try {
-//            // 返回可访问地址
-////            return ResultUtils.success(FileConstant.COS_HOST + filepath);
-//        } catch (Exception e) {
-////            log.error("file upload error, filepath = " + filepath, e);
-//            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传失败");
-//        } finally {
-//            if (file != null) {
-//                // 删除临时文件
-//                boolean delete = file.delete();
-//                if (!delete) {
-////                    log.error("file delete error, filepath = {}", filepath);
-//                }
-//            }
-//        }
     }
 
     /**
@@ -167,7 +196,7 @@ public class ChartController {
         }
         Chart chart = new Chart();
         BeanUtils.copyProperties(chartUpdateRequest, chart);
-        
+
         long id = chartUpdateRequest.getId();
         // 判断是否存在
         Chart oldChart = chartService.getById(id);
@@ -203,7 +232,7 @@ public class ChartController {
      */
     @PostMapping("/list/page")
     public BaseResponse<Page<Chart>> listChartVOByPage(@RequestBody ChartQueryRequest chartQueryRequest,
-            HttpServletRequest request) {
+                                                       HttpServletRequest request) {
         long current = chartQueryRequest.getCurrent();
         long size = chartQueryRequest.getPageSize();
         // 限制爬虫
@@ -222,7 +251,7 @@ public class ChartController {
      */
     @PostMapping("/my/list/page")
     public BaseResponse<Page<Chart>> listMyChartVOByPage(@RequestBody ChartQueryRequest chartQueryRequest,
-            HttpServletRequest request) {
+                                                         HttpServletRequest request) {
         if (chartQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -288,9 +317,9 @@ public class ChartController {
         String sortOrder = chartQueryRequest.getSortOrder();
 
         // 拼接查询条件
-        queryWrapper.eq(StringUtils.isNotBlank(goal),"goal",goal);
-        queryWrapper.like(StringUtils.isNotBlank(goal),"name",name);
-        queryWrapper.eq(StringUtils.isNotBlank(chartType),"chartType",chartType);
+        queryWrapper.eq(StringUtils.isNotBlank(goal), "goal", goal);
+        queryWrapper.like(StringUtils.isNotBlank(goal), "name", name);
+        queryWrapper.eq(StringUtils.isNotBlank(chartType), "chartType", chartType);
         queryWrapper.eq(ObjectUtils.isNotEmpty(id), "id", id);
         queryWrapper.eq(ObjectUtils.isNotEmpty(userId), "userId", userId);
         queryWrapper.eq("isDelete", false);

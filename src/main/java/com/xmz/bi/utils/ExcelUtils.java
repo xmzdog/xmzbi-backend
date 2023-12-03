@@ -40,7 +40,6 @@ public class ExcelUtils {
         if(CollUtil.isEmpty(list)){
             return "";
         }
-
         StringBuilder stringBuilder = new StringBuilder();
         //转换为csv
         //读取表头
