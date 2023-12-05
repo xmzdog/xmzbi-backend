@@ -21,12 +21,15 @@ public class Chart implements Serializable {
     private Long id;
 
     /**
+<<<<<<< HEAD
      * userId
      */
     private Long userId;
 
 
     /**
+=======
+>>>>>>> github/master
      * 分析目标
 
      */
@@ -43,11 +46,14 @@ public class Chart implements Serializable {
     private String chartType;
 
     /**
+<<<<<<< HEAD
      * 图表名称
      */
     private String name;
 
     /**
+=======
+>>>>>>> github/master
      * 生成的表数据
      */
     private String genChart;
