@@ -9,29 +9,20 @@
             <result property="goal" column="goal" jdbcType="VARCHAR"/>
             <result property="chartData" column="chartData" jdbcType="VARCHAR"/>
             <result property="chartType" column="chartType" jdbcType="VARCHAR"/>
-<<<<<<< HEAD
             <result property="name" column="name" jdbcType="VARCHAR"/>
-=======
->>>>>>> github/master
             <result property="genChart" column="genChart" jdbcType="VARCHAR"/>
             <result property="genResult" column="genResult" jdbcType="VARCHAR"/>
             <result property="creatTime" column="creatTime" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
             <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
-<<<<<<< HEAD
             <result property="userId" column="userId" jdbcType="BIGINT"/>
-=======
->>>>>>> github/master
     </resultMap>
 
     <sql id="Base_Column_List">
         id,goal,chartData,
-<<<<<<< HEAD
         chartType,`name`,genChart,genResult,
         creatTime,updateTime,isDelete,userId,
-=======
         chartType,genChart,genResult,
         creatTime,updateTime,isDelete
->>>>>>> github/master
     </sql>
 </mapper>
