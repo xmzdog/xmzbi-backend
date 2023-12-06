@@ -112,6 +112,8 @@ public class ChartController {
         String genChart = splits[1];
         String genResult = splits[2];
 
+
+
         //插入到数据库
         Chart chart = new Chart();
         chart.setUserId(loginUser.getId());
