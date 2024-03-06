@@ -25,4 +25,8 @@
         chartType,genChart,genResult,
         creatTime,updateTime,isDelete
     </sql>
+
+    <select id="queryChartData" parameterType="string" resultType="list">
+        ${querySql}
+    </select>
 </mapper>

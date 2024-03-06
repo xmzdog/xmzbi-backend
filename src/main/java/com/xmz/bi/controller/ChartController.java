@@ -1,5 +1,6 @@
 package com.xmz.bi.controller;
 
+import cn.hutool.core.io.FileUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.gson.Gson;
@@ -35,6 +36,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -75,6 +78,17 @@ public class ChartController {
         //校验
         ThrowUtils.throwIf(StringUtils.isBlank(goal), ErrorCode.PARAMS_ERROR, "目标为空");
         ThrowUtils.throwIf(StringUtils.isNotBlank(name) && name.length() > 100, ErrorCode.PARAMS_ERROR, "名称过长");
+        //校验文件
+        long fileSize = multipartFile.getSize();
+        String originalFilename = multipartFile.getOriginalFilename();
+        //校验文件大小
+        final long ONE_MB = 1024 * 1024L;
+        ThrowUtils.throwIf(fileSize > ONE_MB, ErrorCode.PARAMS_ERROR, "文件超过1M");
+        //校验文件后缀
+        String fileSuffix = FileUtil.getSuffix(originalFilename);
+        //文件合法后缀白名单
+        final List<String> validFileSuffixList = Arrays.asList("png","jpg","svg","webp","jpeg");
+        ThrowUtils.throwIf(!validFileSuffixList.contains(fileSuffix),ErrorCode.PARAMS_ERROR,"文件后缀名非法");
 
         User loginUser = userService.getLoginUser(request);
 
