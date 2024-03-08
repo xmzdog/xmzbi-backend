@@ -39,6 +39,8 @@ create table chart
     chartType  varchar(256)                       null comment '图表类型',
     genChart   text                               null comment '生成的表数据',
     genResult  text                               null comment '生成的分析结论',
+    status      varchar(128)                        not null default 'wait' comment 'wait,running,succeed,failed',
+    executeMessage  text                            null comment '执行信息',
     creatTime  datetime default CURRENT_TIMESTAMP not null comment '创建时间',
     updateTime datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '修改时间',
     isDelete   tinyint  default 0                 not null comment '是否删除',
