@@ -6,7 +6,6 @@ import com.xmz.bi.common.BaseResponse;
 import com.xmz.bi.common.DeleteRequest;
 import com.xmz.bi.common.ErrorCode;
 import com.xmz.bi.common.ResultUtils;
-import com.xmz.bi.config.WxOpenConfig;
 import com.xmz.bi.constant.UserConstant;
 import com.xmz.bi.exception.BusinessException;
 import com.xmz.bi.exception.ThrowUtils;
@@ -46,9 +45,7 @@ public class UserController {
 
     @Resource
     private UserService userService;
-
-    @Resource
-    private WxOpenConfig wxOpenConfig;
+    
 
     // region 登录相关
 
