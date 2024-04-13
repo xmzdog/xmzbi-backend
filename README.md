@@ -61,6 +61,8 @@
 ## 架构图
 ![架构图](https://github.com/xmzdog/xmzbi-backend/assets/137482123/ca623620-78ea-45a8-a1dc-81e096cc8211)
 ![业务流程图](https://github.com/xmzdog/xmzbi-backend/assets/137482123/def8ba51-41b0-4405-a45b-b27cf3f80537)
+![image](https://github.com/xmzdog/xmzbi-backend/assets/137482123/59820098-da22-4745-957c-6e3abe150f26)
+
 
 ## 项目部署
 **使用Docker部署前后端项目**
